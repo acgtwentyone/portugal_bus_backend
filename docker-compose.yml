@@ -1,0 +1,50 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: portugalbus-app
+    container_name: portugalbus_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - portugalbus-network
+
+  db:
+    image: mysql:8.0
+    container_name: portugalbus_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    ports:
+      - "3307:3306" # <-- Acede via localhost:3307 no teu Mac (TablePlus)
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - portugalbus-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: portugalbus_nginx
+    restart: unless-stopped
+    ports:
+      - "8001:80" # <-- PORTA EXTERNA (No servidor será esta porta)
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - portugalbus-network
+
+networks:
+  portugalbus-network:
+    driver: bridge
+
+volumes:
+  dbdata:
