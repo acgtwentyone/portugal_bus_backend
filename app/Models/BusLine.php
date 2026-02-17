@@ -17,4 +17,9 @@ class BusLine extends Model
         'slug',
         'last_sync',
     ];
+
+    public function busStop()
+    {
+        return $this->hasOne(BusStop::class, 'bus_line_id');
+    }
 }
