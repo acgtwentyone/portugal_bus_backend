@@ -30,7 +30,12 @@ class BusLineApiController extends ApiController
             });
         }
 
-        $lines = $query->orderBy('code', 'asc')->get();
+        $lines = $query
+            ->orderBy('network', 'asc')
+            ->orderByRaw('code REGEXP "^[0-9]" DESC')
+            ->orderByRaw('LENGTH(code) ASC')
+            ->orderBy('code', 'asc')
+            ->get();
 
         return BusLineResource::collection($lines);
     }
