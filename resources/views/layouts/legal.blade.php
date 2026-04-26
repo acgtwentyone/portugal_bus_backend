@@ -90,6 +90,12 @@
             letter-spacing: -0.5px;
         }
 
+        header a {
+            text-decoration: none;
+            color: inherit;
+            display: inline-block;
+        }
+
         .logo span {
             color: var(--primary);
         }
@@ -205,10 +211,12 @@
 </head>
 <body>
     <header>
-        <div class="app-icon">
-            <img src="{{ asset('assets/app-logo/logo@3x.png') }}" alt="Porto:Bus Logo">
-        </div>
-        <div class="logo">porto:<span>bus</span></div>
+        <a href="{{ route('landing', ['lang' => app()->getLocale()]) }}">
+            <div class="app-icon">
+                <img src="{{ asset('assets/app-logo/logo@3x.png') }}" alt="Porto:Bus Logo">
+            </div>
+            <div class="logo">porto:<span>bus</span></div>
+        </a>
         
         <div class="language-switcher">
             <a href="?lang=pt" class="lang-btn {{ app()->getLocale() == 'pt' ? 'active' : '' }}">PT</a>
