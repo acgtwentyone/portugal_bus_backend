@@ -125,4 +125,5 @@ return [
 
     'api_domain' => env('API_DOMAIN', 'localhost'),
     'admin_domain' => env('ADMIN_DOMAIN', 'localhost'),
+    'landing_domain' => env('LANDING_DOMAIN', 'localhost'),
 ];

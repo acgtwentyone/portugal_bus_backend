@@ -1,0 +1,55 @@
+<?php
+
+return [
+    'privacy_title' => 'Dados e Privacidade',
+    'privacy_intro' => 'O Porto:Bus foi desenhado com o objetivo de ser útil e respeitador da sua privacidade. Esta página resume como gerimos os dados necessários para o funcionamento da aplicação.',
+    'privacy_transparency_title' => '1. Transparência de Dados',
+    'privacy_transparency_content' => 'Recolhemos apenas o estritamente necessário para lhe fornecer tempos de chegada em tempo real. Não vendemos os seus dados a terceiros nem os utilizamos para fins publicitários.',
+    'privacy_location_title' => '2. Localização e Proximidade',
+    'privacy_location_content' => 'Ao contrário de outras aplicações, o Porto:Bus <strong>não acede à sua localização GPS</strong> nem rastreia os seus movimentos. A consulta de tempos de chegada é feita exclusivamente com base no código ou nome da paragem que decidir pesquisar ou selecionar.',
+    'privacy_favorites_title' => '3. Favoritos e Preferências',
+    'privacy_favorites_content' => 'As suas linhas e paragens favoritas, bem como as definições do tema, são guardadas localmente no seu dispositivo através de tecnologia <strong>MMKV</strong>. Isto permite que aceda rapidamente à informação sem necessidade de uma conta de utilizador.',
+    'privacy_analytics_title' => '4. Analytics e Melhoria',
+    'privacy_analytics_content' => 'Podemos recolher dados técnicos anónimos (modelo do dispositivo, versão da app) para diagnosticar erros e melhorar o desempenho geral da aplicação.',
+
+    'terms_title' => 'Termos e Condições',
+    'terms_intro' => 'Ao utilizar a aplicação Porto:Bus, concorda com os seguintes termos de utilização. Por favor, leia-os atentamente.',
+    'terms_service_title' => '1. Serviço de Informação',
+    'terms_service_content' => 'O Porto:Bus é uma ferramenta independente que fornece informações sobre horários e tempos de chegada da <strong>STCP</strong>. Não somos responsáveis pela operação dos autocarros ou por alterações de serviço efetuadas pelos operadores.',
+    'terms_accuracy_title' => '2. Precisão dos Dados',
+    'terms_accuracy_content' => 'Embora nos esforcemos para fornecer dados em tempo real precisos, fatores externos como trânsito, acidentes ou problemas técnicos nos servidores dos operadores podem causar discrepâncias. A informação é fornecida "como está".',
+    'terms_usage_title' => '3. Uso Adequado',
+    'terms_usage_content' => 'A aplicação deve ser utilizada para fins pessoais. É proibido qualquer tentativa de extração automatizada de dados (scraping) ou ataques que possam comprometer a estabilidade do serviço.',
+    'terms_property_title' => '4. Propriedade Intelectual',
+    'terms_property_content' => 'O design, logótipo e código da aplicação são propriedade de <strong>Acg</strong>. O uso de marcas de terceiros (como STCP) é feito apenas para fins informativos.',
+    'terms_changes_title' => '5. Alterações nos Termos',
+    'terms_changes_content' => 'Reservamo-nos o direito de atualizar estes termos para refletir novas funcionalidades ou alterações legais. O uso continuado da app implica a aceitação dos termos atualizados.',
+
+    'policy_title' => 'Política de Privacidade',
+    'policy_intro' => 'Esta política detalha como o Porto:Bus trata as suas informações e garante a segurança dos seus dados pessoais.',
+    'policy_collection_title' => '1. Recolha de Informação',
+    'policy_collection_device' => 'Informações de Dispositivo',
+    'policy_collection_device_content' => 'Modelo do telemóvel, sistema operativo e identificadores técnicos anónimos para fins de estabilidade.',
+    'policy_collection_search' => 'Dados de Pesquisa',
+    'policy_collection_search_content' => 'Os códigos das paragens que pesquisa para obter tempos de chegada da STCP.',
+    'policy_collection_errors' => 'Logs de Erro',
+    'policy_collection_errors_content' => 'Para nos ajudar a corrigir bugs e melhorar a estabilidade da aplicação.',
+    'policy_processing_title' => '2. Processamento e Armazenamento',
+    'policy_processing_content' => 'Os seus dados de favoritos, histórico de pesquisas e definições de tema são guardados localmente no seu telemóvel utilizando tecnologia <strong>MMKV</strong> de alta performance. Estes dados nunca saem do seu dispositivo.',
+    'policy_security_title' => '3. Segurança',
+    'policy_security_content' => 'Toda a comunicação entre a aplicação móvel e o servidor Laravel é feita através de ligações cifradas (HTTPS/SSL), garantindo que os seus dados não são intercetados.',
+    'policy_rights_title' => '4. Os Seus Direitos (RGPD)',
+    'policy_rights_content' => 'Tem o direito de saber que dados processamos. Como a maioria dos dados é local, pode eliminá-los simplesmente limpando o cache da aplicação ou desinstalando-a.',
+    'policy_contact_title' => '5. Contacto',
+    'policy_contact_content' => 'Para qualquer questão relacionada com a privacidade, pode contactar o desenvolvedor através das informações fornecidas na App Store ou Play Store.',
+
+    'last_updated' => 'Última atualização',
+    'developed_by' => 'Desenvolvido por',
+    'all_rights_reserved' => 'Todos os direitos reservados.',
+    'disclaimer_title' => 'Aviso Legal',
+    'disclaimer_content' => 'O Porto:Bus é uma ferramenta independente, criada pela comunidade, e não está afiliada, associada, autorizada, endossada ou de qualquer forma oficialmente ligada à <strong>STCP</strong> (Sociedade de Transportes Colectivos do Porto), <strong>Metro do Porto</strong>, ou qualquer outro operador de transportes públicos ou agência governamental.
+    <br><br>
+    Toda a informação fornecida pela aplicação é apenas para fins informativos gerais. Embora façamos todos os esforços para garantir a precisão das chegadas em tempo real e horários, os dados são fornecidos "como estão" e não podemos garantir a sua precisão, integridade ou fiabilidade a 100% devido a condições de trânsito, problemas técnicos de serviço ou atualizações de fornecedores de dados externos.
+    <br><br>
+    Todos os nomes de produtos, logótipos e marcas (incluindo o logótipo da <strong>STCP</strong>) são propriedade dos seus respetivos proprietários. O seu uso nesta aplicação e páginas web associadas é apenas para fins de identificação e informação, não implicando qualquer endosso ou afiliação oficial. Estes ativos foram obtidos de materiais de domínio público.',
+];

@@ -1,0 +1,55 @@
+<?php
+
+return [
+    'privacy_title' => 'Data and Privacy',
+    'privacy_intro' => 'Porto:Bus was designed to be useful and respectful of your privacy. This page summarizes how we manage the data necessary for the application to function.',
+    'privacy_transparency_title' => '1. Data Transparency',
+    'privacy_transparency_content' => 'We only collect what is strictly necessary to provide you with real-time arrival times. We do not sell your data to third parties or use it for advertising purposes.',
+    'privacy_location_title' => '2. Location and Proximity',
+    'privacy_location_content' => 'Unlike other apps, Porto:Bus <strong>does not access your GPS location</strong> nor track your movements. Real-time arrival queries are made exclusively based on the stop code or name you decide to search or select.',
+    'privacy_favorites_title' => '3. Favorites and Preferences',
+    'privacy_favorites_content' => 'Your favorite lines and stops, as well as theme settings, are stored locally on your device using <strong>MMKV</strong> technology. This allows you to quickly access information without needing a user account.',
+    'privacy_analytics_title' => '4. Analytics and Improvement',
+    'privacy_analytics_content' => 'We may collect anonymous technical data (device model, app version) to diagnose errors and improve the overall performance of the application.',
+
+    'terms_title' => 'Terms and Conditions',
+    'terms_intro' => 'By using the Porto:Bus app, you agree to the following terms of use. Please read them carefully.',
+    'terms_service_title' => '1. Information Service',
+    'terms_service_content' => 'Porto:Bus is an independent tool that provides information about schedules and arrival times from <strong>STCP</strong>. We are not responsible for bus operations or service changes made by operators.',
+    'terms_accuracy_title' => '2. Data Accuracy',
+    'terms_accuracy_content' => 'While we strive to provide accurate real-time data, external factors such as traffic, accidents, or technical issues on the operators\' servers may cause discrepancies. The information is provided "as is".',
+    'terms_usage_title' => '3. Proper Use',
+    'terms_usage_content' => 'The app should be used for personal purposes. Any attempt at automated data extraction (scraping) or attacks that may compromise the stability of the service is prohibited.',
+    'terms_property_title' => '4. Intellectual Property',
+    'terms_property_content' => 'The design, logo, and code of the application are property of <strong>Acg</strong>. The use of third-party trademarks (such as STCP) is for informational purposes only.',
+    'terms_changes_title' => '5. Changes to Terms',
+    'terms_changes_content' => 'We reserve the right to update these terms to reflect new features or legal changes. Continued use of the app implies acceptance of the updated terms.',
+
+    'policy_title' => 'Privacy Policy',
+    'policy_intro' => 'This policy details how Porto:Bus treats your information and ensures the security of your personal data.',
+    'policy_collection_title' => '1. Data Collection',
+    'policy_collection_device' => 'Device Information',
+    'policy_collection_device_content' => 'Phone model, operating system, and anonymous technical identifiers for stability purposes.',
+    'policy_collection_search' => 'Search Data',
+    'policy_collection_search_content' => 'The stop codes you search for to obtain real-time arrivals from STCP.',
+    'policy_collection_errors' => 'Error Logs',
+    'policy_collection_errors_content' => 'To help us fix bugs and improve the stability of the application.',
+    'policy_processing_title' => '2. Processing and Storage',
+    'policy_processing_content' => 'Your favorite data, search history, and theme settings are stored locally on your phone using high-performance <strong>MMKV</strong> technology. This data never leaves your device.',
+    'policy_security_title' => '3. Security',
+    'policy_security_content' => 'All communication between the mobile app and the Laravel server is done through encrypted connections (HTTPS/SSL), ensuring your data is not intercepted.',
+    'policy_rights_title' => '4. Your Rights (GDPR)',
+    'policy_rights_content' => 'You have the right to know what data we process. As most data is local, you can delete it simply by clearing the app cache or uninstalling it.',
+    'policy_contact_title' => '5. Contact',
+    'policy_contact_content' => 'For any questions related to privacy, you can contact the developer through the information provided in the App Store or Play Store.',
+
+    'last_updated' => 'Last updated',
+    'developed_by' => 'Developed by',
+    'all_rights_reserved' => 'All rights reserved.',
+    'disclaimer_title' => 'Disclaimer',
+    'disclaimer_content' => 'Porto:Bus is an independent, community-driven tool and is not affiliated, associated, authorized, endorsed by, or in any way officially connected with <strong>STCP</strong> (Sociedade de Transportes Colectivos do Porto), <strong>Metro do Porto</strong>, or any other public transportation provider or government agency.
+    <br><br>
+    All information provided by the application is for general informational purposes only. While we make every effort to ensure the accuracy of real-time arrivals and schedules, the data is provided "as is" and we cannot guarantee its 100% accuracy, completeness, or reliability due to traffic conditions, technical service issues, or external data provider updates. 
+    <br><br>
+    All product names, logos, and brands (including the <strong>STCP</strong> logo) are property of their respective owners. Their use in this application and associated web pages is for identification and informational purposes only, and does not imply any endorsement or official affiliation. These assets have been sourced from public domain materials.',
+];
