@@ -6,29 +6,23 @@ use Illuminate\Http\Request;
 
 class LandingController extends Controller
 {
-    private function setLocale(Request $request)
+    public function index()
     {
-        $lang = $request->query('lang');
-        if (in_array($lang, ['en', 'pt', 'es'])) {
-            app()->setLocale($lang);
-        }
+        return view('landing');
     }
 
-    public function privacy(Request $request)
+    public function privacy()
     {
-        $this->setLocale($request);
         return view('legal.privacy');
     }
 
-    public function terms(Request $request)
+    public function terms()
     {
-        $this->setLocale($request);
         return view('legal.terms');
     }
 
-    public function privacyPolicy(Request $request)
+    public function privacyPolicy()
     {
-        $this->setLocale($request);
         return view('legal.privacy_policy');
     }
 }
