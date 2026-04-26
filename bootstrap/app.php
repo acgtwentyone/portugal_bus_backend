@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'auth.bus' => App\Http\Middleware\AuthenticateMobileApi::class,
+            'set.locale' => App\Http\Middleware\SetLocale::class,
         ]);
         $middleware->trustProxies(at: '*');
     })

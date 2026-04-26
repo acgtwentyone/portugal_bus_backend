@@ -18,7 +18,7 @@ return [
     'terms_service_content' => 'Porto:Bus es una herramienta independiente que proporciona información sobre horarios y tiempos de llegada de <strong>STCP</strong>. No somos responsables de la operación de los autobuses ni de los cambios de servicio realizados por los operadores.',
     'terms_accuracy_title' => '2. Precisión de los Datos',
     'terms_accuracy_content' => 'Aunque nos esforzamos por proporcionar datos precisos en tiempo real, factores externos como el tráfico, accidentes o problemas técnicos en los servidores de los operadores podem causar discrepancias. La información se proporciona "tal cual".',
-    'terms_usage_title' => '3. Uso Adecuado',
+    'terms_usage_title' => '3. Uso Adequado',
     'terms_usage_content' => 'La aplicación debe utilizarse para fines personales. Está prohibido cualquier intento de extracción automatizada de datos (scraping) o ataques que possam comprometer la estabilidad del servicio.',
     'terms_property_title' => '4. Propiedad Intelectual',
     'terms_property_content' => 'El diseño, logotipo y código de la aplicación son propiedad de <strong>Acg</strong>. El uso de marcas de terceros (como STCP) es solo para fines informativos.',
@@ -41,7 +41,7 @@ return [
     'policy_rights_title' => '4. Sus Derechos (RGPD)',
     'policy_rights_content' => 'Tiene derecho a saber qué datos procesamos. Como la mayoría de los datos son locales, puede eliminarlos simplemente borrando el caché de la aplicación o desinstalándola.',
     'policy_contact_title' => '5. Contacto',
-    'policy_contact_content' => 'Para cualquier pregunta relacionada con la privacidad, puede contactar al desarrollador a través de la información proporcionada en la App Store o Play Store.',
+    'policy_contact_content' => 'Para cualquier pregunta relacionada con la privacidad, puede contactar al desarrollador a través de la información proporcionada en la App Store ou Play Store.',
 
     'last_updated' => 'Última actualización',
     'developed_by' => 'Desarrollado por',
@@ -52,4 +52,15 @@ return [
     Toda la información proporcionada por la aplicación es solo para fines informativos generales. Si bien hacemos todo lo posible para garantizar la precisión de las llegadas y los horarios en tiempo real, los datos se proporcionan "tal cual" y no podemos garantizar su precisión, integridad o confiabilidad al 100% debido a las condiciones del tráfico, problemas técnicos del servicio o actualizaciones de proveedores de datos externos.
     <br><br>
     Todos los nombres de productos, logotipos y marcas (incluido el logotipo de <strong>STCP</strong>) son propiedad de sus respectivos dueños. Su uso en esta aplicación y en las páginas web asociadas es solo para fines de identificación e información, y no implica ningún respaldo ni afiliación oficial. Estos activos se han obtenido de materiales de dominio público.',
+
+    'landing_hero_title' => 'Los autobuses de Porto, en la palma de tu mano.',
+    'landing_hero_subtitle' => 'Consulta tiempos de llegada en tiempo real de STCP, guarda tus paradas favoritas y planifica tus viajes de forma sencilla y rápida.',
+    'landing_download_app' => 'Descargar Aplicación',
+    'landing_features_title' => '¿Por qué Porto:Bus?',
+    'landing_feature_realtime' => 'Tiempo Real',
+    'landing_feature_realtime_desc' => 'Datos directos de STCP para que nunca pierdas o próximo autobús.',
+    'landing_feature_privacy' => 'Privacidad Total',
+    'landing_feature_privacy_desc' => 'No usamos GPS. Tu ubicación es privada y tus favoritos se guardan solo en tu teléfono.',
+    'landing_feature_simple' => 'Interfaz Sencilla',
+    'landing_feature_simple_desc' => 'Diseñado para ser rápido y fácil de usar, incluso en movimiento.',
 ];

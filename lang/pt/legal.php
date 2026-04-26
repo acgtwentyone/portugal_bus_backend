@@ -52,4 +52,15 @@ return [
     Toda a informação fornecida pela aplicação é apenas para fins informativos gerais. Embora façamos todos os esforços para garantir a precisão das chegadas em tempo real e horários, os dados são fornecidos "como estão" e não podemos garantir a sua precisão, integridade ou fiabilidade a 100% devido a condições de trânsito, problemas técnicos de serviço ou atualizações de fornecedores de dados externos.
     <br><br>
     Todos os nomes de produtos, logótipos e marcas (incluindo o logótipo da <strong>STCP</strong>) são propriedade dos seus respetivos proprietários. O seu uso nesta aplicação e páginas web associadas é apenas para fins de identificação e informação, não implicando qualquer endosso ou afiliação oficial. Estes ativos foram obtidos de materiais de domínio público.',
+
+    'landing_hero_title' => 'Os autocarros do Porto, na palma da sua mão.',
+    'landing_hero_subtitle' => 'Consulte tempos de chegada em tempo real da STCP, guarde as suas paragens favoritas e planeie as suas viagens de forma simples e rápida.',
+    'landing_download_app' => 'Descarregar Aplicação',
+    'landing_features_title' => 'Porquê o Porto:Bus?',
+    'landing_feature_realtime' => 'Tempo Real',
+    'landing_feature_realtime_desc' => 'Dados diretos da STCP para que nunca perca o próximo autocarro.',
+    'landing_feature_privacy' => 'Privacidade Total',
+    'landing_feature_privacy_desc' => 'Não usamos GPS. A sua localização é privada e os seus favoritos são guardados apenas no seu telemóvel.',
+    'landing_feature_simple' => 'Interface Simples',
+    'landing_feature_simple_desc' => 'Desenhado para ser rápido e fácil de usar, mesmo em movimento.',
 ];

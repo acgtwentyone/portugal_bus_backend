@@ -52,4 +52,15 @@ return [
     All information provided by the application is for general informational purposes only. While we make every effort to ensure the accuracy of real-time arrivals and schedules, the data is provided "as is" and we cannot guarantee its 100% accuracy, completeness, or reliability due to traffic conditions, technical service issues, or external data provider updates. 
     <br><br>
     All product names, logos, and brands (including the <strong>STCP</strong> logo) are property of their respective owners. Their use in this application and associated web pages is for identification and informational purposes only, and does not imply any endorsement or official affiliation. These assets have been sourced from public domain materials.',
+
+    'landing_hero_title' => 'Porto buses, in the palm of your hand.',
+    'landing_hero_subtitle' => 'Check real-time STCP arrival times, save your favorite stops, and plan your trips simply and quickly.',
+    'landing_download_app' => 'Download App',
+    'landing_features_title' => 'Why Porto:Bus?',
+    'landing_feature_realtime' => 'Real-Time',
+    'landing_feature_realtime_desc' => 'Direct data from STCP so you never miss the next bus.',
+    'landing_feature_privacy' => 'Total Privacy',
+    'landing_feature_privacy_desc' => 'We don\'t use GPS. Your location is private and your favorites are stored only on your phone.',
+    'landing_feature_simple' => 'Simple Interface',
+    'landing_feature_simple_desc' => 'Designed to be fast and easy to use, even on the go.',
 ];
