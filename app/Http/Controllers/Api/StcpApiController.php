@@ -8,12 +8,12 @@ use App\Http\Resources\BusLineResource;
 use App\Http\Resources\BusStopResource;
 use Illuminate\Support\Facades\DB;
 
-class BusLineApiController extends ApiController
+class StcpApiController extends ApiController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function lines(Request $request)
     {
         $data = $request->validate([
             'search' => 'sometimes|nullable|string',
@@ -24,9 +24,9 @@ class BusLineApiController extends ApiController
         if (!empty($data['search'])) {
             $searchTerm = $data['search'];
 
-            $query->where(function($q) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
                 $q->where('code', 'like', "%{$searchTerm}%")
-                  ->orWhere('name', 'like', "%{$searchTerm}%");
+                    ->orWhere('name', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -49,12 +49,12 @@ class BusLineApiController extends ApiController
             ->join('bus_lines', 'bus_stops.bus_line_id', '=', 'bus_lines.id')
             ->where('bus_lines.code', $code)
             ->select(
-                'bus_stops.id', 
-                'bus_lines.id as bus_id', 
-                'bus_lines.code as bus_code', 
-                'bus_lines.name as bus_name', 
-                'bus_lines.network as bus_network', 
-                'bus_stops.directions_0', 
+                'bus_stops.id',
+                'bus_lines.id as bus_id',
+                'bus_lines.code as bus_code',
+                'bus_lines.name as bus_name',
+                'bus_lines.network as bus_network',
+                'bus_stops.directions_0',
                 'bus_stops.directions_1'
             )
             ->first();
