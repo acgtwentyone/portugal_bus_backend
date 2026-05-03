@@ -126,4 +126,5 @@ return [
     'api_domain' => env('API_DOMAIN', 'localhost'),
     'admin_domain' => env('ADMIN_DOMAIN', 'localhost'),
     'landing_domain' => env('LANDING_DOMAIN', 'localhost'),
+    'unir_realtime_endpoint' => env('UNIR_REALTIME_ENDPOINT', 'https://paragens.amp.pt/acarto2/get_horarios_prg'),
 ];
