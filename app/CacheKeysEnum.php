@@ -1,0 +1,9 @@
+<?php
+
+namespace App;
+
+enum CacheKeysEnum
+{
+    const STCP_LINES_ALL        ='stcp_lines_all';
+    const STCP_STOPS_BY_CODE    ='stcp_stops_by_code';
+}

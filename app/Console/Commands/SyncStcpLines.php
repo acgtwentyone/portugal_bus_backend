@@ -2,9 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\CacheKeysEnum;
 use Illuminate\Console\Command;
 use App\Models\BusLine;
 use App\Models\BusStop;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Facades\Http;
@@ -53,8 +55,10 @@ class SyncStcpLines extends Command
             
             $busDirection1 = $this->fetchStcpApi($code, 1);
 
-            DB::transaction(function () use ($code, $name, $busDirection0, $busDirection1) {
-                
+            $stopsSynced = false;
+
+            DB::transaction(function () use ($code, $name, $busDirection0, $busDirection1, &$stopsSynced) {
+
                 $network = str_ends_with($code, 'M') ? 'M' : 'D';
 
                 $busLine = BusLine::updateOrCreate(
@@ -69,7 +73,7 @@ class SyncStcpLines extends Command
 
                 if ($busDirection0 && $busDirection1) {
                     if (($busDirection0['success'] ?? false) && ($busDirection1['success'] ?? false)) {
-                        
+
                         BusStop::updateOrCreate(
                             ['bus_line_id' => $busLine->id],
                             [
@@ -77,14 +81,22 @@ class SyncStcpLines extends Command
                                 'directions_1' => $busDirection1['stops'] ?? [],
                             ]
                         );
-                        
+
                         $this->info("✔ Line $code and stops synced.");
+
+                        $stopsSynced = true;
                     }
                 }
             });
 
+            if ($stopsSynced) {
+                Cache::forget(CacheKeysEnum::STCP_STOPS_BY_CODE . '_' . $code);
+            }
+
             sleep(1);
         });
+
+        Cache::forget(CacheKeysEnum::STCP_LINES_ALL);
 
         $this->info('STCP lines synchronization completed successfully.');
     }
