@@ -42,9 +42,20 @@ services:
     networks:
       - portugalbus-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: portugalbus_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    networks:
+      - portugalbus-network
+
 networks:
   portugalbus-network:
     driver: bridge
 
 volumes:
   dbdata:
+  redisdata:
