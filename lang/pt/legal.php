@@ -55,7 +55,7 @@ return [
 
     'landing_hero_title' => 'Os autocarros do Porto, na palma da sua mão.',
     'landing_hero_subtitle' => 'Consulte tempos de chegada em tempo real da STCP, guarde as suas paragens favoritas e planeie as suas viagens de forma simples e rápida.',
-    'landing_download_app' => 'Descarregar Aplicação',
+    'landing_download_app' => 'Disponível no Google Play',
     'landing_features_title' => 'Porquê o Porto:Bus?',
     'landing_feature_realtime' => 'Tempo Real',
     'landing_feature_realtime_desc' => 'Dados diretos da STCP para que nunca perca o próximo autocarro.',

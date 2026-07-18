@@ -55,7 +55,7 @@ return [
 
     'landing_hero_title' => 'Porto buses, in the palm of your hand.',
     'landing_hero_subtitle' => 'Check real-time STCP arrival times, save your favorite stops, and plan your trips simply and quickly.',
-    'landing_download_app' => 'Download App',
+    'landing_download_app' => 'Get it on Google Play',
     'landing_features_title' => 'Why Porto:Bus?',
     'landing_feature_realtime' => 'Real-Time',
     'landing_feature_realtime_desc' => 'Direct data from STCP so you never miss the next bus.',

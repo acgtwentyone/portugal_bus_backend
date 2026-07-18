@@ -55,7 +55,7 @@ return [
 
     'landing_hero_title' => 'Los autobuses de Porto, en la palma de tu mano.',
     'landing_hero_subtitle' => 'Consulta tiempos de llegada en tiempo real de STCP, guarda tus paradas favoritas y planifica tus viajes de forma sencilla y rápida.',
-    'landing_download_app' => 'Descargar Aplicación',
+    'landing_download_app' => 'Disponible en Google Play',
     'landing_features_title' => '¿Por qué Porto:Bus?',
     'landing_feature_realtime' => 'Tiempo Real',
     'landing_feature_realtime_desc' => 'Datos directos de STCP para que nunca pierdas o próximo autobús.',
