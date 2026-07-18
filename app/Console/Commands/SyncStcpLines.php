@@ -43,7 +43,7 @@ class SyncStcpLines extends Command
 
         $crawler->filter('.lines-list .col')->each(function (Crawler $node) {
             $code = trim($node->filter('.line-number')->text());
-            $name = trim($node->filter('.line-name')->text());
+            $name = $this->toCamelCaseName(trim($node->filter('.line-name')->text()));
 
             $this->comment("Processing line: $code...");
 
@@ -90,6 +90,36 @@ class SyncStcpLines extends Command
     }
 
     /**
+     * Converte o nome da linha / paragem para Title Case, mantendo os separadores -, ., (, ) e ' com espaçamento legível.
+     */
+    private function toCamelCaseName(string $name): string
+    {
+        $delimiters = [' ', '-', '.', '(', ')', "'"];
+
+        $tokens = preg_split("/([ \-\.\(\)'])/u", $name, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+
+        $result = '';
+        foreach ($tokens as $token) {
+            if ($token === ' ') {
+                $result .= ' ';
+            } elseif ($token === '-') {
+                $result .= ' - ';
+            } elseif ($token === '.') {
+                $result .= '. ';
+            } elseif (in_array($token, $delimiters, true)) {
+                $result .= $token;
+            } else {
+                $result .= Str::ucfirst(Str::lower($token));
+            }
+        }
+
+        $result = preg_replace('/\s+/', ' ', $result);
+        $result = str_replace(['( ', ' )'], ['(', ')'], $result);
+
+        return trim($result);
+    }
+
+    /**
      * Helper para fazer o fetch e decode da API da STCP
      */
     private function fetchStcpApi($code, $direction)
@@ -98,8 +128,21 @@ class SyncStcpLines extends Command
             $response = Http::timeout(30)->get("https://stcp.pt/api/route/$code/stops/direction", [
                 'direction_id' => $direction
             ]);
-            
-            return $response->successful() ? $response->json() : null;
+
+            if (! $response->successful()) {
+                return null;
+            }
+
+            $data = $response->json();
+
+            if (! empty($data['stops'])) {
+                foreach ($data['stops'] as &$stop) {
+                    $stop['stop_name'] = $this->toCamelCaseName($stop['stop_name']);
+                }
+                unset($stop);
+            }
+
+            return $data;
         } catch (\Exception $e) {
             $this->error("Error fetching API for $code Dir $direction: " . $e->getMessage());
             return null;
