@@ -33,6 +33,8 @@ class SyncStcpLines extends Command
      */
     public function handle()
     {
+        $totalLinesProcessed = 0;
+
         $this->info('Initiating synchronization of STCP lines...');
 
         try {
@@ -43,7 +45,7 @@ class SyncStcpLines extends Command
             return;
         }
 
-        $crawler->filter('.lines-list .col')->each(function (Crawler $node) {
+        $crawler->filter('.lines-list .col')->each(function (Crawler $node) use (&$totalLinesProcessed) {
             $code = trim($node->filter('.line-number')->text());
             $name = $this->toCamelCaseName(trim($node->filter('.line-name')->text()));
 
@@ -93,12 +95,14 @@ class SyncStcpLines extends Command
                 Cache::forget(CacheKeysEnum::STCP_STOPS_BY_CODE . '_' . $code);
             }
 
+            $totalLinesProcessed++;
+
             sleep(1);
         });
 
         Cache::forget(CacheKeysEnum::STCP_LINES_ALL);
 
-        $this->info('STCP lines synchronization completed successfully.');
+        $this->info("STCP lines synchronization completed successfully. Total lines processed: $totalLinesProcessed.");
     }
 
     /**
