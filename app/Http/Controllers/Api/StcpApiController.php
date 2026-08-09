@@ -9,6 +9,8 @@ use App\Http\Resources\BusLineResource;
 use App\Http\Resources\BusStopResource;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class StcpApiController extends ApiController
 {
@@ -71,5 +73,163 @@ class StcpApiController extends ApiController
         });
 
         return new BusStopResource($stops);
+    }
+
+    /**
+     * Get today's scheduled departure times for a stop, grouped by line/direction.
+     */
+    public function scheduleCards(string $stopId)
+    {
+        $today = now('Europe/Lisbon')->format('Y-m-d');
+        $cacheKey = CacheKeysEnum::STCP_SCHEDULE_CARDS . ':' . $stopId . ':' . $today;
+
+        $data = Cache::remember($cacheKey, now('Europe/Lisbon')->endOfDay(), function () use ($stopId, $today) {
+            return $this->buildScheduleCards($stopId, $today);
+        });
+
+        return response()->json($data);
+    }
+
+    /**
+     * Find every (route_id, direction_id) combination whose stop list contains $stopId.
+     */
+    private function findLineDirectionsForStop(string $stopId): array
+    {
+        $rows = DB::table('bus_stops')
+            ->join('bus_lines', 'bus_stops.bus_line_id', '=', 'bus_lines.id')
+            ->where(function ($query) use ($stopId) {
+                $query->whereRaw('JSON_CONTAINS(bus_stops.directions_0, JSON_OBJECT("stop_id", ?))', [$stopId])
+                    ->orWhereRaw('JSON_CONTAINS(bus_stops.directions_1, JSON_OBJECT("stop_id", ?))', [$stopId]);
+            })
+            ->select(
+                'bus_lines.code as route_id',
+                'bus_lines.name as route_name',
+                'bus_stops.directions_0',
+                'bus_stops.directions_1'
+            )
+            ->get();
+
+        $lineDirections = [];
+
+        foreach ($rows as $row) {
+            foreach ([0 => $row->directions_0, 1 => $row->directions_1] as $directionId => $json) {
+                $stops = json_decode($json, true) ?? [];
+
+                $servesStop = collect($stops)->contains(fn ($stop) => ($stop['stop_id'] ?? null) === $stopId);
+
+                if ($servesStop) {
+                    $lineDirections[] = [
+                        'route_id' => $row->route_id,
+                        'route_name' => $row->route_name,
+                        'direction_id' => $directionId,
+                    ];
+                }
+            }
+        }
+
+        return $lineDirections;
+    }
+
+    /**
+     * Fetch schedules from stcp.pt for every line/direction serving this stop and aggregate them.
+     */
+    private function buildScheduleCards(string $stopId, string $date): array
+    {
+        $lineDirections = $this->findLineDirectionsForStop($stopId);
+
+        if (empty($lineDirections)) {
+            abort(404, "No lines found serving stop {$stopId}");
+        }
+
+        $activeServiceId = null;
+
+        try {
+            $servicesResponse = Http::timeout(15)->get("https://stcp.pt/api/stops/{$stopId}/services", [
+                'date' => $date,
+            ]);
+
+            if ($servicesResponse->successful()) {
+                $activeServiceId = $servicesResponse->json('active_service_id');
+            }
+        } catch (\Exception $e) {
+            Log::error("STCP services fetch failed for stop {$stopId}: " . $e->getMessage());
+        }
+
+        $lines = [];
+        $partial = false;
+
+        foreach ($lineDirections as $lineDirection) {
+            if (!$activeServiceId) {
+                $lines[] = [
+                    'route_id' => $lineDirection['route_id'],
+                    'route_name' => $lineDirection['route_name'],
+                    'direction_id' => $lineDirection['direction_id'],
+                    'times' => [],
+                    'error' => 'Could not determine active schedule for this date',
+                ];
+                $partial = true;
+                continue;
+            }
+
+            try {
+                $times = $this->fetchScheduleTimes($stopId, $lineDirection['route_id'], $activeServiceId, $lineDirection['direction_id']);
+
+                $lines[] = [
+                    'route_id' => $lineDirection['route_id'],
+                    'route_name' => $lineDirection['route_name'],
+                    'direction_id' => $lineDirection['direction_id'],
+                    'times' => $times,
+                ];
+            } catch (\Exception $e) {
+                Log::error("STCP schedule fetch failed for stop {$stopId}, route {$lineDirection['route_id']}, direction {$lineDirection['direction_id']}: " . $e->getMessage());
+
+                $lines[] = [
+                    'route_id' => $lineDirection['route_id'],
+                    'route_name' => $lineDirection['route_name'],
+                    'direction_id' => $lineDirection['direction_id'],
+                    'times' => [],
+                    'error' => 'Failed to fetch schedule',
+                ];
+                $partial = true;
+            }
+        }
+
+        return [
+            'stop_id' => $stopId,
+            'lines' => $lines,
+            'partial' => $partial,
+        ];
+    }
+
+    /**
+     * Call the stcp.pt schedule endpoint and flatten the hour-keyed response into a sorted time list.
+     */
+    private function fetchScheduleTimes(string $stopId, string $routeId, string $serviceId, int $directionId): array
+    {
+        $response = Http::timeout(15)->get("https://stcp.pt/api/stops/{$stopId}/schedule", [
+            'route_id' => $routeId,
+            'service_id' => $serviceId,
+            'direction_id' => $directionId,
+        ]);
+
+        if (!$response->successful()) {
+            throw new \RuntimeException("STCP schedule endpoint returned status {$response->status()}");
+        }
+
+        $schedule = $response->json('schedule') ?? [];
+
+        $hours = array_keys($schedule);
+        sort($hours, SORT_NUMERIC);
+
+        $times = [];
+        foreach ($hours as $hour) {
+            foreach ($schedule[$hour] as $entry) {
+                if (!empty($entry['departure_time'])) {
+                    $times[] = substr($entry['departure_time'], 0, 5);
+                }
+            }
+        }
+
+        return $times;
     }
 }
