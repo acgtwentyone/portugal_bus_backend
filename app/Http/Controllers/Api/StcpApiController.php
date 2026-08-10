@@ -172,13 +172,14 @@ class StcpApiController extends ApiController
             }
 
             try {
-                $times = $this->fetchScheduleTimes($stopId, $lineDirection['route_id'], $activeServiceId, $lineDirection['direction_id']);
+                $schedule = $this->fetchSchedule($stopId, $lineDirection['route_id'], $activeServiceId, $lineDirection['direction_id']);
 
                 $lines[] = [
                     'route_id' => $lineDirection['route_id'],
                     'route_name' => $lineDirection['route_name'],
                     'direction_id' => $lineDirection['direction_id'],
-                    'times' => $times,
+                    'headsign' => $schedule['headsign'],
+                    'times' => $schedule['times'],
                 ];
             } catch (\Exception $e) {
                 Log::error("STCP schedule fetch failed for stop {$stopId}, route {$lineDirection['route_id']}, direction {$lineDirection['direction_id']}: " . $e->getMessage());
@@ -202,9 +203,16 @@ class StcpApiController extends ApiController
     }
 
     /**
-     * Call the stcp.pt schedule endpoint and flatten the hour-keyed response into a sorted time list.
+     * Call the stcp.pt schedule endpoint, flatten the hour-keyed response into a sorted time list,
+     * and determine the real destination shown on the bus for this stop/direction.
+     *
+     * The line's route_name (e.g. "Campanhã - Castelo Do Queijo") is a static official designation
+     * that stays the same for both directions, so it can't be used to tell riders which way the bus
+     * is actually going. The stcp.pt schedule instead carries a per-trip "headsign" (the destination
+     * shown on the bus), which we use here — picking the most frequent one for short-working trips
+     * that don't run the full route.
      */
-    private function fetchScheduleTimes(string $stopId, string $routeId, string $serviceId, int $directionId): array
+    private function fetchSchedule(string $stopId, string $routeId, string $serviceId, int $directionId): array
     {
         $response = Http::timeout(15)->get("https://stcp.pt/api/stops/{$stopId}/schedule", [
             'route_id' => $routeId,
@@ -222,14 +230,25 @@ class StcpApiController extends ApiController
         sort($hours, SORT_NUMERIC);
 
         $times = [];
+        $headsignCounts = [];
         foreach ($hours as $hour) {
             foreach ($schedule[$hour] as $entry) {
                 if (!empty($entry['departure_time'])) {
                     $times[] = substr($entry['departure_time'], 0, 5);
                 }
+
+                if (!empty($entry['headsign'])) {
+                    $headsignCounts[$entry['headsign']] = ($headsignCounts[$entry['headsign']] ?? 0) + 1;
+                }
             }
         }
 
-        return $times;
+        arsort($headsignCounts);
+        $headsign = array_key_first($headsignCounts);
+
+        return [
+            'times' => $times,
+            'headsign' => $headsign,
+        ];
     }
 }
