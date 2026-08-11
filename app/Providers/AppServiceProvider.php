@@ -15,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Messaging::class, function () {
             return (new Factory)
-                ->withServiceAccount(storage_path(config('services.firebase.credentials')))
+                ->withServiceAccount(config('services.firebase.credentials'))
                 ->createMessaging();
         });
     }
