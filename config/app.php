@@ -127,4 +127,8 @@ return [
     'admin_domain' => env('ADMIN_DOMAIN', 'localhost'),
     'landing_domain' => env('LANDING_DOMAIN', 'localhost'),
     'unir_realtime_endpoint' => env('UNIR_REALTIME_ENDPOINT', 'https://paragens.amp.pt/acarto2/get_horarios_prg'),
+    'stcp_api_base_url' => env('STCP_API_BASE_URL', 'https://stcp.pt/api'),
+
+    'arrival_alert_threshold_minutes' => env('ARRIVAL_ALERT_THRESHOLD_MINUTES', 5),
+    'arrival_alert_expiry_grace_minutes' => env('ARRIVAL_ALERT_EXPIRY_GRACE_MINUTES', 15),
 ];

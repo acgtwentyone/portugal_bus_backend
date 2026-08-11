@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\StcpApiController;
 use App\Http\Controllers\Api\UnirApiController;
 use App\Http\Controllers\Api\AppEventApiController;
+use App\Http\Controllers\Api\DeviceTokenApiController;
+use App\Http\Controllers\Api\ArrivalAlertApiController;
 
 Route::domain(config('app.api_domain'))->group(function () {
     Route::middleware(['auth.bus'])->group(function () {
@@ -18,6 +20,11 @@ Route::domain(config('app.api_domain'))->group(function () {
 
             Route::post('/events', [AppEventApiController::class, 'store']);
             Route::get('/events/summary', [AppEventApiController::class, 'summary']);
+
+            Route::post('/devices', [DeviceTokenApiController::class, 'store']);
+
+            Route::post('/alerts', [ArrivalAlertApiController::class, 'store']);
+            Route::delete('/alerts/{alert}', [ArrivalAlertApiController::class, 'destroy']);
         });
     });
 });

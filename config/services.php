@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'firebase' => [
+        'credentials' => env('FIREBASE_CREDENTIALS', 'app/firebase-service-account.json'),
+    ],
+
 ];

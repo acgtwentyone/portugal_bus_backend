@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\ProcessArrivalAlerts;
 use App\Console\Commands\SyncStcpLines;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -21,4 +22,12 @@ Schedule::command(SyncStcpLines::class)
     })
     ->onSuccess(function () {
         Log::info('Sync STCP concluído com sucesso.');
+    });
+
+// Polls active arrival alerts every minute and pushes via FCM when the bus is close
+Schedule::command(ProcessArrivalAlerts::class)
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        Log::error('Processamento de alertas de chegada falhou.');
     });

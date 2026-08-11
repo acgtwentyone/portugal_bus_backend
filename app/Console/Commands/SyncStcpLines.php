@@ -141,7 +141,7 @@ class SyncStcpLines extends Command
     private function fetchStcpApi($code, $direction)
     {
         try {
-            $response = Http::timeout(30)->get("https://stcp.pt/api/route/$code/stops/direction", [
+            $response = Http::timeout(30)->get(config('app.stcp_api_base_url') . "/route/$code/stops/direction", [
                 'direction_id' => $direction
             ]);
 
