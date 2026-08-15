@@ -126,6 +126,7 @@ class ProcessArrivalAlerts extends Command
             // Matches the value the app already has cached in MMKV for this alert (the ETA
             // it sent when activating it), not the live one, so the app can find/clear it.
             $data = [
+                'alert_id' => $alert->id, 
                 'stop_id' => $alert->stop_id,
                 'route_id' => $alert->route_id,
                 'direction_id' => (string) $alert->direction_id,
