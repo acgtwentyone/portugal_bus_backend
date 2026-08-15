@@ -112,17 +112,8 @@ class ProcessArrivalAlerts extends Command
      */
     private function fireGroup(Collection $groupAlerts, array $match, int $minutesAway): void
     {
-        /** @var ArrivalAlert $first */
-        $first = $groupAlerts->first();
-
         $minutesAway = max(0, $minutesAway);
         $headsign = $match['trip_headsign'] ?? null;
-
-        $data = [
-            'stop_id' => $first->stop_id,
-            'route_id' => $first->route_id,
-            'direction_id' => (string) $first->direction_id,
-        ];
 
         foreach ($groupAlerts as $alert) {
             $locale = $alert->locale ?: config('app.locale');
@@ -131,6 +122,15 @@ class ProcessArrivalAlerts extends Command
             $body = $headsign
                 ? Lang::get('push.arrival_alert_body', ['route' => $alert->route_id, 'headsign' => $headsign, 'minutes' => $minutesAway], $locale)
                 : Lang::get('push.arrival_alert_body_no_headsign', ['route' => $alert->route_id, 'minutes' => $minutesAway], $locale);
+
+            // Matches the value the app already has cached in MMKV for this alert (the ETA
+            // it sent when activating it), not the live one, so the app can find/clear it.
+            $data = [
+                'stop_id' => $alert->stop_id,
+                'route_id' => $alert->route_id,
+                'direction_id' => (string) $alert->direction_id,
+                'estimated_arrival_time' => $alert->estimated_arrival_time->toIso8601String(),
+            ];
 
             $this->pushService->send($alert->device_token, $title, $body, $data);
         }
