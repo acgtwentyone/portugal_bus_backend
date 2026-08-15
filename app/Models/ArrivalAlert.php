@@ -10,6 +10,7 @@ class ArrivalAlert extends Model
         'stop_id',
         'route_id',
         'direction_id',
+        'trip_id',
         'estimated_arrival_time',
         'threshold_minutes',
         'device_token',

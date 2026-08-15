@@ -59,12 +59,11 @@ class ProcessArrivalAlerts extends Command
         foreach ($byStop as $stopId => $stopAlerts) {
             $arrivals = $this->stcpService->getArrivals($stopId);
 
-            // A physical stop_id only serves one direction of a given route, so the feed
-            // is already direction-scoped by nature — direction_id is kept on the alert
-            // for record-keeping, not used to filter these results.
-            $byRouteDirection = $stopAlerts->groupBy(fn (ArrivalAlert $alert) => $alert->route_id . '|' . $alert->direction_id);
+            // Group by the exact trip so alerts on the same specific bus (not just the
+            // same route) are batched together.
+            $byTrip = $stopAlerts->groupBy('trip_id');
 
-            foreach ($byRouteDirection as $groupAlerts) {
+            foreach ($byTrip as $groupAlerts) {
                 $this->processGroup($groupAlerts, $arrivals, $graceMinutes);
             }
         }
@@ -79,10 +78,9 @@ class ProcessArrivalAlerts extends Command
         /** @var ArrivalAlert $first */
         $first = $groupAlerts->first();
 
-        $match = collect($arrivals)
-            ->filter(fn (array $arrival) => ($arrival['route_short_name'] ?? null) === $first->route_id)
-            ->sortBy('arrival_minutes')
-            ->first();
+        // Match the exact trip the alert was created for, not just "next of this route",
+        // so we track the specific bus the user picked.
+        $match = collect($arrivals)->firstWhere('trip_id', $first->trip_id);
 
         if (!$match) {
             $this->expireStaleAlerts($groupAlerts, $graceMinutes);
@@ -92,8 +90,8 @@ class ProcessArrivalAlerts extends Command
 
         $minutesAway = (int) ($match['arrival_minutes'] ?? PHP_INT_MAX);
 
-        // Every alert in the group shares the same stop/route/direction but can have its
-        // own "notify me X minutes before" threshold, so the single fetched arrival can
+        // Every alert in the group is watching the same trip but can have its own
+        // "notify me X minutes before" threshold, so the single fetched arrival can
         // cross some alerts' thresholds while others are still waiting.
         [$toFire, $notYet] = $groupAlerts->partition(fn (ArrivalAlert $alert) => $minutesAway <= $alert->threshold_minutes);
 
@@ -126,17 +124,18 @@ class ProcessArrivalAlerts extends Command
             // Matches the value the app already has cached in MMKV for this alert (the ETA
             // it sent when activating it), not the live one, so the app can find/clear it.
             $data = [
-                'alert_id' => $alert->id, 
+                'alert_id' => $alert->id,
                 'stop_id' => $alert->stop_id,
                 'route_id' => $alert->route_id,
                 'direction_id' => (string) $alert->direction_id,
+                'trip_id' => $alert->trip_id,
                 'estimated_arrival_time' => $alert->estimated_arrival_time->toIso8601String(),
             ];
 
             $this->pushService->send($alert->device_token, $title, $body, $data);
-        }
 
-        ArrivalAlert::whereIn('id', $groupAlerts->pluck('id'))->delete();
+            $alert->delete();
+        }
     }
 
     /**
@@ -144,16 +143,13 @@ class ProcessArrivalAlerts extends Command
      */
     private function expireStaleAlerts(Collection $groupAlerts, int $graceMinutes): void
     {
-        $expiredIds = $groupAlerts
-            ->filter(fn (ArrivalAlert $alert) => now('Europe/Lisbon')->isAfter($alert->estimated_arrival_time->clone()->addMinutes($graceMinutes)))
-            ->pluck('id');
+        $expired = $groupAlerts
+            ->filter(fn (ArrivalAlert $alert) => now('Europe/Lisbon')->isAfter($alert->estimated_arrival_time->clone()->addMinutes($graceMinutes)));
 
-        if ($expiredIds->isEmpty()) {
-            return;
+        foreach ($expired as $alert) {
+            Log::info("Expiring stale arrival alert without firing: {$alert->id}");
+
+            $alert->delete();
         }
-
-        Log::info('Expiring stale arrival alerts without firing: ' . $expiredIds->implode(', '));
-
-        ArrivalAlert::whereIn('id', $expiredIds)->delete();
     }
 }

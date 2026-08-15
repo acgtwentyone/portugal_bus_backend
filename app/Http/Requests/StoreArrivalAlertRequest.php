@@ -25,6 +25,7 @@ class StoreArrivalAlertRequest extends FormRequest
             'stop_id' => ['required', 'string', 'max:255'],
             'route_id' => ['required', 'string', 'max:255'],
             'direction_id' => ['required', 'integer', 'in:0,1'],
+            'trip_id' => ['required', 'string', 'max:255'],
             'estimated_arrival_time' => ['required', 'date'],
             'threshold_minutes' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:30'],
             'device_token' => ['required', 'string', 'max:255'],
