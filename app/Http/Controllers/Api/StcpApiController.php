@@ -10,6 +10,7 @@ use App\Http\Resources\BusLineResource;
 use App\Http\Resources\BusStopResource;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class StcpApiController extends ApiController
 {
@@ -76,6 +77,58 @@ class StcpApiController extends ApiController
         });
 
         return new BusStopResource($stops);
+    }
+
+    /**
+     * Search stops by name/code across the whole network.
+     */
+    public function searchStops(Request $request)
+    {
+        $data = $request->validate([
+            'search' => 'sometimes|nullable|string',
+            'limit' => 'sometimes|integer|min:1|max:100',
+        ]);
+
+        $searchTerm = trim($data['search'] ?? '');
+        $limit = $data['limit'] ?? 25;
+
+        if ($searchTerm === '') {
+            return response()->json(['data' => []]);
+        }
+
+        $stops = Cache::remember(CacheKeysEnum::STCP_STOPS_ALL_FLAT, now()->addHours(24), function () {
+            $rows = DB::table('bus_stops')->select('directions_0', 'directions_1')->get();
+
+            $stopsById = [];
+
+            foreach ($rows as $row) {
+                foreach ([$row->directions_0, $row->directions_1] as $json) {
+                    $decoded = json_decode($json, true) ?? [];
+
+                    foreach ($decoded as $stop) {
+                        if (empty($stop['stop_id'])) {
+                            continue;
+                        }
+
+                        $stopsById[$stop['stop_id']] = $stop;
+                    }
+                }
+            }
+
+            return array_values($stopsById);
+        });
+
+        $term = Str::lower($searchTerm);
+
+        $results = collect($stops)
+            ->filter(function ($stop) use ($term) {
+                return Str::contains(Str::lower($stop['stop_name'] ?? ''), $term)
+                    || Str::contains(Str::lower($stop['stop_code'] ?? ''), $term);
+            })
+            ->values()
+            ->take($limit);
+
+        return response()->json(['data' => $results]);
     }
 
     /**

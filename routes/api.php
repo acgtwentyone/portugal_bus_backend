@@ -12,6 +12,7 @@ Route::domain(config('app.api_domain'))->group(function () {
         Route::prefix('v1')->group(function () {
             Route::get('/lines', [StcpApiController::class, 'lines']);
             Route::get('/lines/{code}/stops', [StcpApiController::class, 'stops']);
+            Route::get('/stops', [StcpApiController::class, 'searchStops']);
             Route::get('/stops/{stopId}/schedule-cards', [StcpApiController::class, 'scheduleCards']);
 
             Route::get('/unir/lines', [UnirApiController::class, 'lines']);

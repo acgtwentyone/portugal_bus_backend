@@ -101,6 +101,7 @@ class SyncStcpLines extends Command
         });
 
         Cache::forget(CacheKeysEnum::STCP_LINES_ALL);
+        Cache::forget(CacheKeysEnum::STCP_STOPS_ALL_FLAT);
 
         $this->info("STCP lines synchronization completed successfully. Total lines processed: $totalLinesProcessed.");
     }
