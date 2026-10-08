@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
@@ -21,4 +22,5 @@ Route::domain(config('app.landing_domain'))->middleware('set.locale')->group(fun
 // 2. Admin panel (behind Cloudflare Access)
 Route::domain(config('app.admin_domain'))->middleware('admin.access')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/actions', [AuditLogController::class, 'index'])->name('actions.index');
 });
