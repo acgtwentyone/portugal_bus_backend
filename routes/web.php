@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AlertController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PushController;
 use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +28,8 @@ Route::domain(config('app.admin_domain'))->middleware('admin.access')->name('adm
     Route::post('/alerts/purge', [AlertController::class, 'purgeExpired'])->name('alerts.purge');
     Route::delete('/alerts/{alert}', [AlertController::class, 'destroy'])->name('alerts.destroy')
         ->missing(fn () => redirect()->route('admin.alerts.index')->with('error', 'Alerta já não existe'));
+    Route::get('/push', [PushController::class, 'create'])->name('push.create');
+    Route::post('/push/preview', [PushController::class, 'preview'])->name('push.preview');
+    Route::post('/push/send', [PushController::class, 'send'])->name('push.send');
     Route::get('/actions', [AuditLogController::class, 'index'])->name('actions.index');
 });
