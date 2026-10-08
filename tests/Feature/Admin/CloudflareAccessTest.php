@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\InteractsWithCloudflareAccess;
@@ -10,6 +11,7 @@ use Tests\TestCase;
 class CloudflareAccessTest extends TestCase
 {
     use InteractsWithCloudflareAccess;
+    use RefreshDatabase;
 
     protected function setUp(): void
     {
