@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\LandingController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,9 +18,7 @@ Route::domain(config('app.landing_domain'))->middleware('set.locale')->group(fun
     Route::get('/privacy_policy', [LandingController::class, 'privacyPolicy'])->name('legal.privacy_policy');
 });
 
-// 2. Admin & Management Routes (Coming Soon)
-Route::domain(config('app.admin_domain'))->group(function () {
-    Route::get('/admin-placeholder', function () {
-        return "Admin Panel - Coming Soon";
-    });
+// 2. Admin panel (behind Cloudflare Access)
+Route::domain(config('app.admin_domain'))->middleware('admin.access')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 });

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.bus' => App\Http\Middleware\AuthenticateMobileApi::class,
             'set.locale' => App\Http\Middleware\SetLocale::class,
+            'admin.access' => App\Http\Middleware\VerifyCloudflareAccess::class,
         ]);
         $middleware->trustProxies(at: '*');
     })
