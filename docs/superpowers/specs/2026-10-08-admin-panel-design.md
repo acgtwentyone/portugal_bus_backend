@@ -191,7 +191,7 @@ O listener `App\Listeners\RecordScheduledTaskRun` ouve os eventos do scheduler. 
 | Evento | Efeito |
 |---|---|
 | `ScheduledTaskStarting` | cria uma linha com `status = running` e `started_at` |
-| `ScheduledTaskFinished` | `success` ou `failed` conforme o `exitCode`, mais `finished_at` e `duration_ms` |
+| `ScheduledTaskFinished` | `success` (exit 0), `failed` (≠ 0) ou `skipped` (`exitCode` null, salto por `withoutOverlapping`), mais `finished_at` e `duration_ms` |
 | `ScheduledTaskFailed` | `failed` e `error` com a mensagem da exceção |
 | `ScheduledTaskSkipped` | cria uma linha `skipped` |
 
@@ -217,7 +217,7 @@ Um cartão por cada tarefa de `Schedule::events()`, por isso as tarefas novas ap
 
 - nome do comando, frequência em texto, a partir da expressão cron, e a próxima execução;
 - a última execução: data, duração e estado; se falhou, a mensagem de erro;
-- **um aviso de atraso**, se a última execução (`started_at`) for anterior à última data prevista pela expressão cron menos uma tolerância de 2 minutos. Exemplo: `ProcessArrivalAlerts` sem execuções há mais de 3 minutos. Serve para detetar um cron do host parado ou um contentor em baixo;
+- **um aviso de atraso**: com `due` = a última data prevista pela expressão cron em relação a *agora − 2 minutos*, a tarefa está atrasada se a última execução (`started_at`) for anterior a `due`. Exemplo: `ProcessArrivalAlerts` sem execuções há cerca de 3 minutos. Serve para detetar um cron do host parado ou um contentor em baixo. Sem nenhuma execução registada mostra "Sem execuções registadas", não atrasado;
 - as últimas 10 execuções, numa lista que se abre com `<details>`.
 
 Contadores rápidos com link para as páginas: alertas ativos, alertas expirados e dispositivos registados.
