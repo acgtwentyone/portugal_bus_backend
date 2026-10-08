@@ -31,3 +31,6 @@ Schedule::command(ProcessArrivalAlerts::class)
     ->onFailure(function () {
         Log::error('Processamento de alertas de chegada falhou.');
     });
+
+// Keeps scheduled_task_runs (admin dashboard history) to the last 7 days
+Schedule::command('model:prune')->daily();
