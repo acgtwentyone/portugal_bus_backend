@@ -54,8 +54,9 @@ trait InteractsWithCloudflareAccess
             'aud' => [self::CF_AUD],
             'iss' => 'https://'.self::CF_TEAM_DOMAIN,
             'email' => self::ADMIN_EMAIL,
-            'iat' => now()->timestamp,
-            'exp' => now()->addHour()->timestamp,
+            // php-jwt checks exp against the real clock (time()), not Carbon's travelled one.
+            'iat' => time(),
+            'exp' => time() + 3600,
         ], $claims);
 
         return JWT::encode($payload, $key ?? $this->accessPrivateKey, 'RS256', $kid);

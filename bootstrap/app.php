@@ -17,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'set.locale' => App\Http\Middleware\SetLocale::class,
             'admin.access' => App\Http\Middleware\VerifyCloudflareAccess::class,
         ]);
+        // Authenticate admin requests before route model binding, so unauthenticated
+        // requests can't probe which records exist.
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: App\Http\Middleware\VerifyCloudflareAccess::class,
+        );
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

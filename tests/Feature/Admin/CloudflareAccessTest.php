@@ -51,7 +51,7 @@ class CloudflareAccessTest extends TestCase
 
     public function test_expired_token_is_forbidden(): void
     {
-        $this->withHeader('Cf-Access-Jwt-Assertion', $this->accessToken(['exp' => now()->subMinute()->timestamp]))
+        $this->withHeader('Cf-Access-Jwt-Assertion', $this->accessToken(['exp' => time() - 60]))
             ->get(self::ADMIN_HOST.'/')->assertForbidden();
     }
 
@@ -89,6 +89,11 @@ class CloudflareAccessTest extends TestCase
         Http::fake(['*' => Http::response('down', 500)]);
 
         $this->asAdmin()->get(self::ADMIN_HOST.'/')->assertStatus(503);
+    }
+
+    public function test_route_model_binding_does_not_run_before_access_check(): void
+    {
+        $this->delete(self::ADMIN_HOST.'/alerts/999')->assertForbidden();
     }
 
     public function test_dev_email_bypass_works_in_local(): void
