@@ -49,8 +49,6 @@ class ProcessArrivalAlerts extends Command
             return;
         }
 
-        $graceMinutes = (int) config('app.arrival_alert_expiry_grace_minutes');
-
         // stcp.pt's realtime feed is scoped to a stop and already returns every route
         // passing through it, so one fetch per stop_id covers every alert on that stop
         // regardless of how many different routes/directions they're watching.
@@ -64,16 +62,16 @@ class ProcessArrivalAlerts extends Command
             $byTrip = $stopAlerts->groupBy('trip_id');
 
             foreach ($byTrip as $groupAlerts) {
-                $this->processGroup($groupAlerts, $arrivals, $graceMinutes);
+                $this->processGroup($groupAlerts, $arrivals);
             }
         }
     }
 
     /**
-     * @param Collection<int, ArrivalAlert> $groupAlerts
-     * @param array<int, array<string, mixed>> $arrivals
+     * @param  Collection<int, ArrivalAlert>  $groupAlerts
+     * @param  array<int, array<string, mixed>>  $arrivals
      */
-    private function processGroup(Collection $groupAlerts, array $arrivals, int $graceMinutes): void
+    private function processGroup(Collection $groupAlerts, array $arrivals): void
     {
         /** @var ArrivalAlert $first */
         $first = $groupAlerts->first();
@@ -82,8 +80,8 @@ class ProcessArrivalAlerts extends Command
         // so we track the specific bus the user picked.
         $match = collect($arrivals)->firstWhere('trip_id', $first->trip_id);
 
-        if (!$match) {
-            $this->expireStaleAlerts($groupAlerts, $graceMinutes);
+        if (! $match) {
+            $this->expireStaleAlerts($groupAlerts);
 
             return;
         }
@@ -100,13 +98,13 @@ class ProcessArrivalAlerts extends Command
         }
 
         if ($notYet->isNotEmpty()) {
-            $this->expireStaleAlerts($notYet, $graceMinutes);
+            $this->expireStaleAlerts($notYet);
         }
     }
 
     /**
-     * @param Collection<int, ArrivalAlert> $groupAlerts
-     * @param array<string, mixed> $match
+     * @param  Collection<int, ArrivalAlert>  $groupAlerts
+     * @param  array<string, mixed>  $match
      */
     private function fireGroup(Collection $groupAlerts, array $match, int $minutesAway): void
     {
@@ -139,12 +137,12 @@ class ProcessArrivalAlerts extends Command
     }
 
     /**
-     * @param Collection<int, ArrivalAlert> $groupAlerts
+     * @param  Collection<int, ArrivalAlert>  $groupAlerts
      */
-    private function expireStaleAlerts(Collection $groupAlerts, int $graceMinutes): void
+    private function expireStaleAlerts(Collection $groupAlerts): void
     {
         $expired = $groupAlerts
-            ->filter(fn (ArrivalAlert $alert) => now('Europe/Lisbon')->isAfter($alert->estimated_arrival_time->clone()->addMinutes($graceMinutes)));
+            ->filter(fn (ArrivalAlert $alert) => $alert->isExpired());
 
         foreach ($expired as $alert) {
             Log::info("Expiring stale arrival alert without firing: {$alert->id}");
