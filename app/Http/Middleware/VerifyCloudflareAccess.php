@@ -80,7 +80,7 @@ class VerifyCloudflareAccess
 
     /**
      * Cached Access public keys. A token signed with a kid we haven't seen means Cloudflare
-     * rotated its keys, so the cache is refreshed once before giving up.
+     * rotated its keys, so the cache is refreshed (at most once a minute) before giving up.
      *
      * @return array<string, \Firebase\JWT\Key>
      */
@@ -88,7 +88,10 @@ class VerifyCloudflareAccess
     {
         $keys = Cache::remember(self::CERTS_CACHE_KEY, 3600, fn () => $this->fetchCerts());
 
-        if (! array_key_exists($this->kidOf($token), JWK::parseKeySet($keys, 'RS256'))) {
+        // At most one forced refresh per minute, so garbage tokens sent straight to the origin
+        // can't turn every request into an outbound call to Cloudflare.
+        if (! array_key_exists($this->kidOf($token) ?? '', JWK::parseKeySet($keys, 'RS256'))
+            && Cache::add(self::CERTS_CACHE_KEY.'_refreshed', true, 60)) {
             Cache::forget(self::CERTS_CACHE_KEY);
             $keys = Cache::remember(self::CERTS_CACHE_KEY, 3600, fn () => $this->fetchCerts());
         }

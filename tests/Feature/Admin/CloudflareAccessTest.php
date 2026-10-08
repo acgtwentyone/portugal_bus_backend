@@ -84,6 +84,21 @@ class CloudflareAccessTest extends TestCase
         Http::assertSentCount(1);
     }
 
+    public function test_unknown_kid_refetch_is_throttled(): void
+    {
+        $this->asAdmin()->get(self::ADMIN_HOST.'/')->assertOk();
+        Http::swap(new \Illuminate\Http\Client\Factory);
+        $this->fakeAccessCerts(['test-kid' => $this->accessPrivateKey]);
+
+        // Garbage tokens hitting the origin directly must not trigger a certs fetch each.
+        foreach (range(1, 5) as $i) {
+            $this->withHeader('Cf-Access-Jwt-Assertion', $this->accessToken(kid: "bogus-{$i}", key: $this->newRsaKey()))
+                ->get(self::ADMIN_HOST.'/')->assertForbidden();
+        }
+
+        Http::assertSentCount(1);
+    }
+
     public function test_certs_unavailable_without_cache_is_503(): void
     {
         Cache::flush();
