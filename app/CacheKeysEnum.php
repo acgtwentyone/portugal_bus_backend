@@ -10,4 +10,6 @@ enum CacheKeysEnum
     const STCP_SCHEDULE_CARDS   ='schedule-cards';
     const STCP_ACTIVE_SERVICE_ID ='stcp_active_service_id';
     const STCP_ROUTE_SCHEDULE    ='stcp_route_schedule';
+    const UNIR_DAY_SCHEDULE      ='unir_day_schedule';
+    const UNIR_STOPS_ALL_FLAT    ='unir_stops_all_flat';
 }

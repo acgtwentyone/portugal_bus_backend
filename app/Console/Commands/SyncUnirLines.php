@@ -53,11 +53,11 @@ class SyncUnirLines extends Command
             $response = Http::withOptions(['cookies' => $this->cookieJar])->get('https://paragens.amp.pt/unirmap/');
             if (!$response->successful()) {
                 $this->error('Failed to fetch UNIR website index to get cookies.');
-                return;
+                return self::FAILURE;
             }
         } catch (\Exception $e) {
             $this->error('Failed to fetch UNIR website: ' . $e->getMessage());
-            return;
+            return self::FAILURE;
         }
 
         foreach ($this->municipalities as $mun) {
@@ -110,7 +110,12 @@ class SyncUnirLines extends Command
             }
         }
 
+        // A pesquisa de paragens usa uma lista em cache: refazer com os dados novos.
+        \Illuminate\Support\Facades\Cache::forget(\App\CacheKeysEnum::UNIR_STOPS_ALL_FLAT);
+
         $this->info('UNIR lines synchronization completed successfully.');
+
+        return self::SUCCESS;
     }
 
     /**

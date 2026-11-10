@@ -6,8 +6,11 @@ use App\Models\UnirBusLine;
 use Illuminate\Http\Request;
 use App\Http\Resources\UnirBusLineResource;
 use App\Http\Resources\UnirBusStopResource;
+use App\Services\UnirService;
+use App\CacheKeysEnum;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class UnirApiController extends ApiController
@@ -69,96 +72,99 @@ class UnirApiController extends ApiController
     }
 
     /**
-     * Get real-time arrivals for a specific Unir stop
+     * Pesquisa de paragens UNIR por nome ou código, no mesmo formato do /stops da STCP.
      */
-    public function realtime($stopCode)
+    public function searchStops(Request $request)
     {
-        try {
-            $today = now()->format('Y-m-d');
-            $url = config('app.unir_realtime_endpoint') . "?dia={$today}&id={$stopCode}";
+        $data = $request->validate([
+            'search' => 'sometimes|nullable|string',
+            'limit' => 'sometimes|integer|min:1|max:100',
+        ]);
 
-            $response = Http::get($url);
+        $term = Str::lower(trim($data['search'] ?? ''));
+        $limit = $data['limit'] ?? 25;
 
-            if (!$response->successful()) {
-                return response()->json(['arrivals' => []]);
-            }
+        if ($term === '') {
+            return response()->json(['data' => []]);
+        }
 
-            $body = $response->body();
+        // Lista única de paragens (uma paragem serve várias linhas). Invalida no próximo sync.
+        $stops = Cache::remember(CacheKeysEnum::UNIR_STOPS_ALL_FLAT, now()->addHours(24), function () {
+            $byCode = [];
 
-            // Tentar descodificar diretamente primeiro
-            $data = json_decode($body, true);
-
-            // Se falhar (porque está como string escapada), descodificar a string resultante
-            if (is_string($data)) {
-                $data = json_decode($data, true);
-            }
-
-            if (!$data || !isset($data['horarios'])) {
-                return response()->json(['arrivals' => []]);
-            }
-
-            $horarios = $data['horarios'];
-            $arrivals = [];
-            $now = now('Europe/Lisbon');
-
-            foreach ($horarios as $item) {
-                $line = $item['linha'] ?? '';
-                $destination = $item['destino'] ?? '';
-                $scheduledTime = $item['chegada'] ?? '';
-                $tripId = $item['trip_id'] ?? null;
-
-                if (empty($scheduledTime))
-                    continue;
-
-                $parts = explode(':', $scheduledTime);
-                $hours = (int) $parts[0];
-                $minutes = (int) $parts[1];
-
-                $scheduled = now('Europe/Lisbon')->setHour($hours % 24)->setMinute($minutes)->setSecond(0);
-
-                if ($hours >= 24) {
-                    $scheduled->addDay();
-                } else {
-                    if ($scheduled->isPast() && $scheduled->diffInHours($now) > 12) {
-                        $scheduled->addDay();
+            foreach (DB::table('unir_bus_stops')->select('directions_0', 'directions_1')->get() as $row) {
+                foreach ([$row->directions_0, $row->directions_1] as $json) {
+                    foreach (json_decode($json ?? '[]', true) ?? [] as $stop) {
+                        if (!empty($stop['stop_code'])) {
+                            $byCode[$stop['stop_code']] = $stop;
+                        }
                     }
                 }
-
-                $arrivalMinutes = (int) $now->diffInMinutes($scheduled, false);
-
-                // Mostrar apenas o que ainda não passou (margem de 2 min)
-                // e limitar aos próximos 120 minutos (2 horas) para não encher a lista com o dia seguinte
-                if ($arrivalMinutes < -2 || $arrivalMinutes > 120)
-                    continue;
-
-                $arrivals[] = [
-                    'route_short_name' => $line,
-                    'trip_headsign' => $destination,
-                    'arrival_minutes' => max(0, $arrivalMinutes),
-                    'estimated_arrival_time' => $scheduled->toIso8601String(),
-                    'scheduled_arrival_time' => $scheduled->toIso8601String(),
-                    'status' => 'ON_TIME',
-                    'delay_minutes' => 0,
-                    'trip_id' => $tripId,
-                    'vehicle_id' => null,
-                ];
             }
 
-            usort($arrivals, function ($a, $b) {
-                return $a['arrival_minutes'] <=> $b['arrival_minutes'];
-            });
+            return array_values($byCode);
+        });
+
+        $results = collect($stops)
+            ->filter(fn ($stop) => Str::contains(Str::lower($stop['stop_name'] ?? ''), $term)
+                || Str::contains(Str::lower($stop['stop_code'] ?? ''), $term))
+            ->values()
+            ->take($limit);
+
+        return response()->json(['data' => $results]);
+    }
+
+    /**
+     * Próximas passagens numa paragem UNIR.
+     *
+     * A UNIR só publica horários programados (sem tempo real), por isso a resposta
+     * leva is_realtime=false e cada chegada status=SCHEDULED. Se a fonte falhar,
+     * devolve 502 em vez de uma lista vazia, para a app não confundir
+     * "a fonte falhou" com "não há autocarros".
+     */
+    public function realtime(string $stopCode, UnirService $unir)
+    {
+        try {
+            $now = now('Europe/Lisbon');
+            $schedule = $unir->getDaySchedule($stopCode, $now->format('Y-m-d'));
+        } catch (\Throwable $e) {
+            Log::error("UNIR: falha ao obter horários da paragem {$stopCode}: " . $e->getMessage());
 
             return response()->json([
                 'stop_id' => $stopCode,
-                'stop_name' => $data['designa'] ?? 'Paragem Unir',
-                'arrivals' => $arrivals,
-                'last_updated' => now('Europe/Lisbon')->toIso8601String(),
-                'data_source' => 'UNIR'
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error("Error fetching Unir realtime JSON for $stopCode: " . $e->getMessage());
-            return response()->json(['arrivals' => [], 'error' => 'Failed to fetch realtime data'], 500);
+                'arrivals' => [],
+                'error' => 'Failed to fetch UNIR schedule',
+            ], 502);
         }
+
+        return response()->json([
+            'stop_id' => $stopCode,
+            'stop_name' => $schedule['stop_name'] ?? 'Paragem Unir',
+            'arrivals' => $unir->buildArrivals($schedule, $now),
+            'last_updated' => $now->toIso8601String(),
+            'data_source' => 'UNIR',
+            'is_realtime' => false,
+        ]);
+    }
+
+    /**
+     * Horário completo do dia por linha, no mesmo formato do schedule-cards da STCP.
+     */
+    public function scheduleCards(string $stopCode, UnirService $unir)
+    {
+        try {
+            $schedule = $unir->getDaySchedule($stopCode, now('Europe/Lisbon')->format('Y-m-d'));
+        } catch (\Throwable $e) {
+            Log::error("UNIR: falha ao obter schedule-cards da paragem {$stopCode}: " . $e->getMessage());
+
+            return response()->json([
+                'stop_id' => $stopCode,
+                'lines' => [],
+                'partial' => true,
+                'error' => 'Failed to fetch UNIR schedule',
+            ], 502);
+        }
+
+        return response()->json($unir->buildScheduleCards($stopCode, $schedule));
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Console\Commands\ProcessArrivalAlerts;
 use App\Console\Commands\SyncStcpLines;
+use App\Console\Commands\SyncUnirLines;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
@@ -30,4 +31,17 @@ Schedule::command(ProcessArrivalAlerts::class)
     ->withoutOverlapping()
     ->onFailure(function () {
         Log::error('Processamento de alertas de chegada falhou.');
+    });
+
+// UNIR: linhas e paragens mudam pouco; uma vez por semana chega (domingo 04:00, depois da STCP)
+Schedule::command(SyncUnirLines::class)
+    ->sundays()
+    ->at('04:00')
+    ->timezone('Europe/Lisbon')
+    ->withoutOverlapping()
+    ->onFailure(function () {
+        Log::error('Sync UNIR falhou (domingo 04:00).');
+    })
+    ->onSuccess(function () {
+        Log::info('Sync UNIR concluído com sucesso.');
     });

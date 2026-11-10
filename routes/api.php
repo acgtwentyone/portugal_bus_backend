@@ -17,7 +17,9 @@ Route::domain(config('app.api_domain'))->group(function () {
 
             Route::get('/unir/lines', [UnirApiController::class, 'lines']);
             Route::get('/unir/lines/{code}/stops', [UnirApiController::class, 'stops']);
+            Route::get('/unir/stops', [UnirApiController::class, 'searchStops']);
             Route::get('/unir/stops/{stopCode}/realtime', [UnirApiController::class, 'realtime']);
+            Route::get('/unir/stops/{stopCode}/schedule-cards', [UnirApiController::class, 'scheduleCards']);
 
             Route::post('/events', [AppEventApiController::class, 'store']);
             Route::get('/events/summary', [AppEventApiController::class, 'summary']);
